@@ -3,7 +3,7 @@ import numpy as np
 import pyzbar.pyzbar as pyzbar
 
 cap = cv.VideoCapture(0, cv.CAP_DSHOW)
-qr_cascade = cv.CascadeClassifier("C:\\Users\\elanu\\Documents\\pandn\\classifier\\cascade.xml")
+qr_cascade = cv.CascadeClassifier("cascades/qr_cascade.xml")
 PADDING = 30
 
 def filterImage(gray):
