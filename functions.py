@@ -1,6 +1,8 @@
 import numpy as np
 import pyzbar.pyzbar as pyzbar
 import os
+import datetime
+import time
 
 from settings import *
 
@@ -23,6 +25,7 @@ def detect_qr_and_print(frame, gray, cascade=QR_CASCADE):
             cv.rectangle(frame, (x-PADDING, y-PADDING), (x+w+PADDING, y+h+PADDING), (127, 0, 255), 2)
 
             cv.putText(frame, text_data, (x-PADDING+left, y-PADDING+top), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+            print(f"[x] {datetime.datetime.now().timestamp()} - {text_data}")
 
         except: pass
 
@@ -32,5 +35,4 @@ def iterate_and_detect_qrs(dir_path=BG_DIR_PATH):
         img = cv.imread(os.path.join(dir_path, img_path))
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         detect_qr_and_print(img, gray)
-        cv.imshow("QR Detection", img)
-        cv.waitKey(0)
+        time.sleep(1)
