@@ -12,7 +12,13 @@ import time
 from settings import *
 
 
-def detect_qr_and_print(frame: np.ndarray, gray: np.ndarray, cascade: cv.CascadeClassifier = QR_CASCADE):
+def detect_qr_and_print(frame: np.ndarray, gray: np.ndarray, cascade: cv.CascadeClassifier = QR_CASCADE) -> None:
+    """
+        @brief detect_qr_and_print does detect qr code in a `frame` (if any), then decodes it
+        @param frame: `np.ndarray` frame read from the camera, used for printing the decoded qr
+        @param gray: `np.darray` frame converted to gray scale, used for detection and decode
+        @param cascade: `cv.CascadeClassifier` cascade in which the detection will be done
+    """
     qrcodes = cascade.detectMultiScale(gray, 2.6213145, 4, maxSize=np.shape(gray))
 
     for (x, y, w, h) in qrcodes:
@@ -40,7 +46,11 @@ def detect_qr_and_print(frame: np.ndarray, gray: np.ndarray, cascade: cv.Cascade
         except: pass
 
 
-def iterate_and_detect_qrs(dir_path: str = BG_DIR_PATH):
+def iterate_and_detect_qrs(dir_path: str = BG_DIR_PATH) -> None:
+    """
+        @brief iterate_and_detect_qrs does detect qr code (if any) and decode it on image files (for testing)
+        @param dir_path: `str` path of directory
+    """
     for img_path in os.listdir(BG_DIR_PATH):
         img = cv.imread(os.path.join(dir_path, img_path))
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
