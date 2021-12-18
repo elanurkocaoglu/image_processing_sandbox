@@ -1,9 +1,5 @@
-from ctypes import WinDLL
 import numpy as np
 import pyzbar.pyzbar as pyzbar
-from scipy.spatial import distance as dist
-from imutils import perspective
-from imutils import contours
 
 import os
 import datetime
