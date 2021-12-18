@@ -11,7 +11,8 @@ import time
 
 from settings import *
 
-def detect_qr_and_print(frame, gray, cascade=QR_CASCADE):
+
+def detect_qr_and_print(frame: np.ndarray, gray: np.ndarray, cascade: cv.CascadeClassifier = QR_CASCADE):
     qrcodes = cascade.detectMultiScale(gray, 2.6213145, 4, maxSize=np.shape(gray))
 
     for (x, y, w, h) in qrcodes:
@@ -36,37 +37,12 @@ def detect_qr_and_print(frame, gray, cascade=QR_CASCADE):
             cv.putText(frame, text_data, (x-PADDING+left, y-PADDING+top), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
             print(f"[x] {datetime.datetime.now().timestamp()} - {text_data}")
 
-            qr_location = {
-                "top_left":     (x+left-PADDING, y+top-PADDING),
-                "top_right":    (x+left+width-PADDING, y+top-PADDING),
-                "bottom_left":  (x+left-PADDING, y+top+height-PADDING),
-                "bottom_right": (x+left+width-PADDING, y+top+height-PADDING)
-            }
-
-            return qr_location
-
         except: pass
 
 
-def iterate_and_detect_qrs(dir_path=BG_DIR_PATH):
+def iterate_and_detect_qrs(dir_path: str = BG_DIR_PATH):
     for img_path in os.listdir(BG_DIR_PATH):
         img = cv.imread(os.path.join(dir_path, img_path))
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         detect_qr_and_print(img, gray)
         time.sleep(1)
-
-
-def midpoint(pointA, pointB):
-    return (
-        (pointA[0] + pointB[0]) * 0.5,
-        (pointA[1] + pointB[1]) * 0.5
-    )
-
-def calculate_distance(qr_location):
-    top_left_bot_left = midpoint(qr_location["top_left"], qr_location["bottom_left"])
-    top_right_bot_right = midpoint(qr_location["top_right"], qr_location["bottom_right"])
-    D = dist.euclidean(top_left_bot_left, top_right_bot_right)
-    ref_obj = (
-        (qr_location["top_left"], qr_location["top_right"], qr_location["bottom_right"], qr_location["bottom_left"]),
-        ####
-    )
