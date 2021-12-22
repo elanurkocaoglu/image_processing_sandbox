@@ -13,6 +13,7 @@ THICKNESS = 2
 QR_COLOR = (32, 32, 32)
 MOTION_COLOR = (78, 255, 78)
 
+QR_DETECT_TIMEOUT = 60 # in seconds
 MOTION_TEXT = "Motion Detected"
 
 GAUSSIAN_KERNEL_SIZE = (7, 7)

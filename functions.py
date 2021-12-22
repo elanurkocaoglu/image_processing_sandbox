@@ -9,7 +9,27 @@ import imutils
 from settings import *
 
 
-def detect_qr_and_print(frame: np.ndarray, gray: np.ndarray, cascade: cv.CascadeClassifier = QR_CASCADE) -> None:
+def record_qr(qr_map: dict, qr_code: pyzbar.Decoded) -> None:
+    """
+        @brief record_qr does record decoded qr codes, if the timeout is reached,
+        it can be re-detected
+        @param qr_map: `dict` keys (data) and values (timestamps)
+        @param qr_code: detected and decoded qr code object
+    """
+    byte_data = qr_code.data
+    text_data = byte_data.decode("UTF-8")
+    timestamp_now = datetime.datetime.now().timestamp()
+
+    if text_data in qr_map.keys():
+        timestamp_last = qr_map[text_data]
+        if timestamp_now - timestamp_last > QR_DETECT_TIMEOUT:
+            qr_map[text_data] = timestamp_now
+
+    else:
+        qr_map[text_data] = timestamp_now        
+
+
+def detect_qr_and_print(frame: np.ndarray, gray: np.ndarray, qr_map: dict, cascade: cv.CascadeClassifier = QR_CASCADE) -> None:
     """
         @brief detect_qr_and_print does detect qr code in a `frame` (if any), then decodes it
         @param frame: `np.ndarray` frame read from the camera, used for printing the decoded qr
@@ -24,6 +44,7 @@ def detect_qr_and_print(frame: np.ndarray, gray: np.ndarray, cascade: cv.Cascade
         try:
             qrs = pyzbar.decode(roi)
             decoded_qr = qrs[0]
+            
             byte_data = decoded_qr.data
             text_data = byte_data.decode("UTF-8")
 
@@ -38,7 +59,7 @@ def detect_qr_and_print(frame: np.ndarray, gray: np.ndarray, cascade: cv.Cascade
             cv.rectangle(frame, (x+left-PADDING, y+top-PADDING), (x+left+width-PADDING, y+top+height-PADDING), (213, 231, 76), 2) # detected qr
 
             cv.putText(frame, text_data, (x-PADDING+left, y-PADDING+top), FONT_FACE, FONT_SCALE, QR_COLOR, THICKNESS)
-            print(f"[x] {datetime.datetime.now().timestamp()} - {text_data}")
+            record_qr(qr_map, decoded_qr)
 
         except: pass
 
