@@ -55,13 +55,15 @@ def iterate_and_detect_qrs(dir_path: str = BG_DIR_PATH) -> None:
         time.sleep(1)
 
 
-def detect_motion_and_print(frame: np.ndarray, gray: np.ndarray, previous_gray: np.ndarray):
+def detect_motion_and_print(frame: np.ndarray, gray: np.ndarray, previous_gray: np.ndarray) -> tuple:
     """
         @brief detect_motion_and_print does detect motion by using the difference between the previous frame and the current frame
         and shows it on the output frame
         @param frame: `np.ndarray` frame read from the camera, used for showing the motion
         @param gray: `np.ndarray` frame converted to gray scale, which is the current frame
         @param previous_gray `np.ndarray` frame converted to gray scale, which is the previously processed frame
+        @return `np.ndarray`, diff frame (motion detected), `np.ndarray`, current gray scaled frame, which wil be used in the next
+        iterations (a new frame is read from camera)
     """
     gaussian = cv.GaussianBlur(gray, GAUSSIAN_KERNEL_SIZE, 0)
     thresh = cv.absdiff(previous_gray, gaussian)
