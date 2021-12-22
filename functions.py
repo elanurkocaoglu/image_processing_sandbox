@@ -4,6 +4,7 @@ import pyzbar.pyzbar as pyzbar
 import os
 import datetime
 import time
+import imutils
 
 from settings import *
 
@@ -36,7 +37,7 @@ def detect_qr_and_print(frame: np.ndarray, gray: np.ndarray, cascade: cv.Cascade
             cv.rectangle(frame, (x-PADDING, y-PADDING), (x+w+PADDING, y+h+PADDING), (127, 0, 255), 2) # padded region of interest
             cv.rectangle(frame, (x+left-PADDING, y+top-PADDING), (x+left+width-PADDING, y+top+height-PADDING), (213, 231, 76), 2) # detected qr
 
-            cv.putText(frame, text_data, (x-PADDING+left, y-PADDING+top), cv.FONT_HERSHEY_SIMPLEX, 0.5, (0, 0, 0), 2)
+            cv.putText(frame, text_data, (x-PADDING+left, y-PADDING+top), FONT_FACE, FONT_SCALE, QR_COLOR, THICKNESS)
             print(f"[x] {datetime.datetime.now().timestamp()} - {text_data}")
 
         except: pass
@@ -52,3 +53,31 @@ def iterate_and_detect_qrs(dir_path: str = BG_DIR_PATH) -> None:
         gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
         detect_qr_and_print(img, gray)
         time.sleep(1)
+
+
+def detect_motion_and_print(frame: np.ndarray, gray: np.ndarray, previous_gray: np.ndarray):
+    """
+        @brief detect_motion_and_print does detect motion by using the difference between the previous frame and the current frame
+        and shows it on the output frame
+        @param frame: `np.ndarray` frame read from the camera, used for showing the motion
+        @param gray: `np.ndarray` frame converted to gray scale, which is the current frame
+        @param previous_gray `np.ndarray` frame converted to gray scale, which is the previously processed frame
+    """
+    gaussian = cv.GaussianBlur(gray, GAUSSIAN_KERNEL_SIZE, 0)
+    thresh = cv.absdiff(previous_gray, gaussian)
+    _, diff = cv.threshold(thresh, 50, 255, cv.THRESH_BINARY)
+
+    contours = cv.findContours(diff, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    contours = imutils.grab_contours(contours)
+
+    for contour in contours:
+        if cv.contourArea(contour) < MIN_CONTOUR_AREA:
+            continue
+
+        else:
+            cv.drawContours(frame, contour, -1, MOTION_COLOR, THICKNESS*2)
+            cv.putText(frame, MOTION_TEXT, (10, 40), FONT_FACE, FONT_SCALE, MOTION_COLOR, THICKNESS)
+
+    previous_gray = gray
+
+    return diff, previous_gray
