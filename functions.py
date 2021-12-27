@@ -1,3 +1,4 @@
+from cv2 import dilate
 import numpy as np
 import pyzbar.pyzbar as pyzbar
 
@@ -83,14 +84,18 @@ def detect_motion_and_print(frame: np.ndarray, gray: np.ndarray, previous_gray: 
         @param frame: `np.ndarray` frame read from the camera, used for showing the motion
         @param gray: `np.ndarray` frame converted to gray scale, which is the current frame
         @param previous_gray `np.ndarray` frame converted to gray scale, which is the previously processed frame
-        @return `np.ndarray`, diff frame (motion detected), `np.ndarray`, current gray scaled frame, which wil be used in the next
+        @return `np.ndarray`, diff frame (motion detected); `np.ndarray`, current gray scaled frame, which wil be used in the next
         iterations (a new frame is read from camera)
     """
     gaussian = cv.GaussianBlur(gray, GAUSSIAN_KERNEL_SIZE, 0)
-    thresh = cv.absdiff(previous_gray, gaussian)
-    _, diff = cv.threshold(thresh, 50, 255, cv.THRESH_BINARY)
+    diff = cv.absdiff(previous_gray, gaussian)
+    _, thresh = cv.threshold(diff, 50, 255, cv.THRESH_BINARY)
+    thresh = cv.dilate(thresh, None, iterations=4)
 
-    contours = cv.findContours(diff, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
+    cv.imshow("Thresh", thresh)
+    cv.waitKey(10)
+
+    contours = cv.findContours(thresh, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
     contours = imutils.grab_contours(contours)
 
     for contour in contours:
@@ -98,7 +103,9 @@ def detect_motion_and_print(frame: np.ndarray, gray: np.ndarray, previous_gray: 
             continue
 
         else:
-            cv.drawContours(frame, contour, -1, MOTION_COLOR, THICKNESS*2)
+            #cv.drawContours(frame, contour, -1, MOTION_COLOR, THICKNESS*2)
+            x, y, w, h = cv.boundingRect(contour)
+            cv.rectangle(frame, (x, y), (x+w, y+h), MOTION_COLOR, THICKNESS)
             cv.putText(frame, MOTION_TEXT, (10, 40), FONT_FACE, FONT_SCALE, MOTION_COLOR, THICKNESS)
 
     previous_gray = gray

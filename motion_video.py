@@ -22,7 +22,7 @@ if __name__ == "__main__":
         cv.imshow('Original', frame)
         cv.imshow('Gray', gray)
 
-        if cv.waitKey(33) == ord("q") or cv.waitKey(40) == ord("Q"):
+        if cv.waitKey(20) == ord("q") or cv.waitKey(40) == ord("Q"):
             break
 
     cap.release()
